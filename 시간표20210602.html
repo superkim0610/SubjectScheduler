@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!--mobile-->
+        <!--black han sans-->
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;900&display=swap" rel="stylesheet">
+
+        <title>시간표</title>
+        <style>
+            #div1{
+                padding-top: 12%;
+            }
+            #table{
+                text-align:center;
+                border-collapse:collapse;
+                -ms-transform: scale(1.8);
+                -webkit-transform: scale(1.8);
+                transform: scale(1.8);
+            }
+            #th{
+                font-size:2em;
+                color: white;
+                background-color:#2b8cfe;
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+            }
+            #table td, #table th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+            .tr :hover{
+                background-color:#ddd;
+            }
+            #th :hover {
+                background-color:#0172f4;
+            }
+            #교시{
+                font-size:0.8em;
+            }
+            a{
+                font-size:1.8em;
+                text-decoration:none;
+                color:black;
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+            }
+            .classOrder{
+                font-size:26px;
+            }
+            #timeLabel{
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+                font-size:0.9em;
+                color:gray;
+            }
+        </style>
+        <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-database.js"></script>
+        <script type="text/javascript">
+            var firebaseConfig = {
+                apiKey: "AIzaSyDSfIOZ4iFVFOmEnRC2ojjdJXHlTnwYZyo",
+                authDomain: "ip-save-345a9.firebaseapp.com",
+                databaseURL: "https://ip-save-345a9-default-rtdb.firebaseio.com",
+                projectId: "ip-save-345a9",
+                storageBucket: "ip-save-345a9.appspot.com",
+                messagingSenderId: "951301142063",
+                appId: "1:951301142063:web:2619906c94845f023978da"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            window.onload = makeSchedule;
+            function makeSchedule(){
+                var tableFront = "<tr id=\"th\"><td id=\"교시\">교시</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td></tr>";
+                var processing;
+
+                var tr = "<tr class=\"tr\">";
+                var trE = "</tr>";
+                var td = "<td>";
+                var tdE = "</td>";
+                var a = "<a href=\""
+                var aM = "\" target=\"_blank\">"
+                var aE = "</a>"
+
+                var subjectNum = ["　", "국어", "수학", "과학", "영어","역사", "기술", "도덕", "한문", "음악", "미술", "체육", "스클", "자율"];
+                
+                var 빈칸 = "https://zoom.us/j/5199867787?pwd=dmw3NjBTYWkwK0laRndJbzBJbHZrZz09"
+                var 국어 = "https://zoom.us/j/6627759299?pwd=ekM0K3BmT2I4djRpTTNWTldwQm83Zz09";
+                var 수학 = "https://zoom.us/j/3969976560?pwd=MnJvN202cmRJVnVkZjJDdVRkelNxUT09";
+                var 과학 = "https://zoom.us/j/5226261708?pwd=blhNeUhnbmR0MWxMaW10bG9VUTMzQT09";
+                var 영어 = "https://zoom.us/j/5199867787?pwd=dmw3NjBTYWkwK0laRndJbzBJbHZrZz09";
+                var 역사 = "https://zoom.us/j/3945075759?pwd=Wjh1bE5SbFQvTnBoWFBkc2JKUmVWZz09";
+                var 기술 = "https://zoom.us/j/8901737739?pwd=ZHVQc0hBUVdDZlBCNkl2blEzaHZTdz09";
+                var 도덕 = "https://zoom.us/j/3127699050?pwd=MDV3djhqQ05tTUVXQXBYUjBwZXJ2Zz09";
+                var 한문 = "https://zoom.us/j/5261924068?pwd=UjVaUXd6VXB5dmVNdVBsZ21abFlnQT09";
+                var 음악 = "https://zoom.us/j/3181857271?pwd=NG1KZ0ZadnJmRktOOUlEWGhDc0RVUT09";
+                var 미술 = "https://zoom.us/j/7667945036?pwd=WGFHY05DTG01cnhNK1FsMVpBSmFDdz09";
+                var 체육 = "https://zoom.us/j/5816179131?pwd=RC93RStTOENUUEx4MEtGNkhUQzdrZz09";
+                var 스클 = "https://oc2.ebssw.kr/onlineClass/search/onlineClassSearchView.do?schulCcode=05207&schCssTyp=online_mid";
+                var 자율 = "";
+
+                var subjectLink = [빈칸,국어,수학,과학,영어,역사,기술,도덕,한문,음악,미술,체육,스클,자율];
+                
+                var mon = [7,8,2,4,3,11,0];
+                var tue = [8,1,5,2,3,9,12];
+                var wed = [1,6,5,2,10,10,0];
+                var thu = [1,3,4,11,2,5,13];
+                var fri = [1,11,7,5,3,6,0];
+
+                var mon2 = [2,1,10,4,6,3,0];
+                var tue2 = [5,11,3,8,4,1,12];
+                var wed2 = [2,1,3,5,8,9,0];
+                var thu2 = [11,10,2,6,5,1,13];
+                var fri2 = [4,2,3,11,7,7,0];
+
+                processing = tableFront;
+                for(var i = 0;i < 7;i++){
+                    processing += tr;
+                    processing += td;
+                    processing += "<a class=\"classOrder\" target=\"_top\">"
+                    processing += (i+1);
+                    processing += aE;
+                    processing += tdE;
+                    for(var j = 0;j < 5;j++){
+                        var date = [mon2[i], tue2[i], wed2[i], thu2[i], fri2[i]];
+                        processing += td;
+                        processing += a;
+                        //here to add link;
+                        //processing += "https://naver.com"    <-- just test
+                        processing += subjectLink[date[j]];
+                        processing += aM;
+                        //here to add subjectName
+                        processing += subjectNum[date[j]];
+                        processing += aE;
+                        processing += tdE;
+                    }
+                    processing += trE;
+                }
+                var table = document.getElementById("table");
+                table.innerHTML = processing;
+
+                recommandSchedule();
+            }
+            function recommandSchedule(){
+                var timeText = "";
+                let date = new Date();
+                let day = date.getDay();
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+                let seconds = date.getSeconds();
+                if(hours => 13){
+                    timeText = "오후 "+(hours - 12) + "시 " + minutes + "분 " + seconds + "초"
+                }else{
+                    timeText = "오전 "+(hours) + "시 " + minutes + "분 " + seconds + "초"
+                }
+                var timeLabel = document.getElementById("timeLabel");
+                timeLabel.innerHTML = timeText;
+            }
+        </script>
+    </head>
+    <body>
+        <center>
+            <input type="text" id="ATPT_OFCDC_SC_CODE" placeholder="시도교육청코드"><br>
+            <input type="text" id="SD_SCHUL_CODE" placeholder="표준학교코드"><br>
+            <input type="text" id="AY" placeholder="년도"><br>
+            <input type="text" id="SEM" placeholder="학기"><br>
+            <input type="text" id="ALL_TI_YMD" placeholder="일자"><br>
+            <input type="text" id="DGHT_CRSE_SC_NM" value="주간" placeholder="주야과정명"><br>
+            <input type="text" id="GRADE" placeholder="학년"><br>
+            <input type="text" id="CLASS_NM" placeholder="반">
+
+            <span id="guide" style="color:#999"></span>
+                <div id="div1">
+                <table id="table"></table>
+                <p id="timeLabel"></p>
+            </div>
+        </center>
+    </body>
+</html>
