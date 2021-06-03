@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!--mobile-->
+        <!--black han sans-->
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;900&display=swap" rel="stylesheet">
+
+        <title>시간표</title>
+        <style>
+            #div1{
+                padding-top: 12%;
+            }
+            #table{
+                text-align:center;
+                border-collapse:collapse;
+                -ms-transform: scale(1.8);
+                -webkit-transform: scale(1.8);
+                transform: scale(1.8);
+            }
+            #th{
+                font-size:2em;
+                color: white;
+                background-color:#2b8cfe;
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+            }
+            #table td, #table th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+            .tr :hover{
+                background-color:#ddd;
+            }
+            #th :hover {
+                background-color:#0172f4;
+            }
+            #교시{
+                font-size:0.8em;
+            }
+            a{
+                font-size:1.8em;
+                text-decoration:none;
+                color:black;
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+            }
+            .classOrder{
+                font-size:26px;
+            }
+            #timeLabel{
+                font-family: 'Noto Sans KR', sans-serif;
+                font-weight: 300;
+                font-size:0.9em;
+                color:gray;
+            }
+        </style>
+        <script type="text/javascript">
+            window.onload = main;
+            function main(){
+            }
+            function testButtonOnclick(){
+                let date = new Date();
+                let monday = date.getDate() - date.getDay() + 1;
+                let mondayDate;
+                let lastMonth;
+                let month = date.getMonth() + 1;
+                let _date = date.getDate();
+                if(date.getDate() - date.getDay() + 1 < 1){ //전달으로 내림계산
+                    if(month-1 == 2){ //전달이 2월달이면 : 28일 또는 29일
+                        if(date.getFullYear()%4 == 0){
+                            lastMonth = 29;
+                        }else{
+                            lastMonth = 28;
+                        }
+                    }else if((month-1) <= 7){ //전달이 7월이하면
+                        if((month-1)%2 == 0){ //짝수달이 30일
+                            lastMonth = 30;
+                        }else{
+                            lastMonth = 31;
+                        }
+                    }else{ //전달이 8월 이상이면
+                        if((month-1)%2 == 0){ //짝수달이 31일
+                            lastMonth = 31;
+                        }else{
+                            lastMonth = 30;
+                        }
+                    }
+                    month -= 1;
+                    _date = lastMonth - monday;
+                }else{
+                    _date -= monday;
+                }
+                console.log(month); //이번주의 월요일 (월)
+                console.log(_date); //이번주의 월요일 (일)
+                callApi(dateAdd(month,_date,0),dateAdd(month,_date,4));
+            }
+            function callApi(fromDate,toDate){
+                let api_link = "https://open.neis.go.kr/hub/misTimetable?Key=13eca7ab97a346ebaf5575f3e82b043d&Type=json&pIndex=1&pSize=100";
+                api_link += "&ATPT_OFCDC_SC_CODE="+document.getElementById("ATPT_OFCDC_SC_CODE").value;
+                api_link += "&SD_SCHUL_CODE="+document.getElementById("SD_SCHUL_CODE").value;
+                api_link += "&AY="+document.getElementById("AY").value;
+                api_link += "&SEM="+document.getElementById("SEM").value;
+                api_link += "&TI_FROM_YMD="+fromDate;
+                api_link += "&TI_TO_YMD="+toDate;
+                api_link += "&DGHT_CRSE_SC_NM="+document.getElementById("DGHT_CRSE_SC_NM").value;
+                api_link += "&GRADE="+document.getElementById("GRADE").value;
+                api_link += "&CLASS_NM="+document.getElementById("CLASS_NM").value;
+
+                fetch(api_link)
+                    .then(res => res.json())
+                    .then(data => {
+                        //console.log(res);
+                        console.log(data.misTimetable[1].row);
+                        let schedule = new Array(5);
+                        var c = 0;
+                        for(i=0;i<5;i++){
+                            schedule[i] = new Array();
+                            if(i%2==0){
+                                var p = 6;
+                            }else{
+                                var p = 7;
+                            }
+                            for(j=0;j<p;j++){
+                                nowSubject = data.misTimetable[1].row[c].ITRT_CNTNT;
+                                console.log(nowSubject);
+                                schedule[i].push(nowSubject.split("-")[1].split(" ")[nowSubject.split("-")[1].split(" ").length-1]);
+                                c++;
+                            }
+                        }
+                            console.log(schedule);
+                            const scheduleName = new Array();
+                            for(i=0;i<5;i++){
+                                scheduleName.push(new Array());
+                                var p;
+                                if(i%2==0){
+                                    p=6;
+                                }else{
+                                    p=7;
+                                }
+                                for(j=0;j<p;j++){
+                                    if(schedule[i][j]==undefined){
+                                        scheduleName[i].push("　");
+                                    }else if(schedule[i][j]=="기술·가정"){
+                                        scheduleName[i].push("기가");
+                                    }else if(schedule[i][j]=="동아리활동"){
+                                        scheduleName[i].push("스클");
+                                    }else if(schedule[i][j]=="자율활동"){
+                                        scheduleName[i].push("자율");
+                                    }else if(schedule[i][j]=="중국어"){
+                                        scheduleName[i].push("중국");
+                                    }else{
+                                        scheduleName[i].push(schedule[i][j]);
+                                    }
+                                }
+                            }
+                            console.log(scheduleName);  
+                            var tableFront = "<tr id=\"th\"><td id=\"교시\">교시</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td></tr>";
+                            var processing;
+
+                            var tr = "<tr class=\"tr\">";
+                            var trE = "</tr>";
+                            var td = "<td>";
+                            var tdE = "</td>";
+                            var a = "<a href=\""
+                            var aM = "\" target=\"_blank\">"
+                            var aE = "</a>"
+
+                            processing = tableFront;
+                            for(var i = 0;i < 7;i++){
+                                processing += tr;
+                                processing += td;
+                                processing += "<a class=\"classOrder\" target=\"_top\">"
+                                processing += (i+1);
+                                processing += aE;
+                                processing += tdE;
+                                for(var j = 0;j < 5;j++){
+                                    processing += td;
+                                    processing += a;
+                                    //here to add link;
+                                    //processing += "https://naver.com"    <-- just test
+                                    //processing += subjectLink[date[j]];
+                                    processing += aM;
+                                    //here to add subjectName
+                                    processing += scheduleName[j][i];
+                                    processing += aE;
+                                    processing += tdE;
+                                }
+                                processing += trE;
+                            }
+                        
+                        console.log(schedule);
+                        var table = document.getElementById("table");
+                        table.innerHTML = processing;
+                    });
+            }
+            function dateAdd(month,day,a){
+                let date = new Date();
+                if(month == 2){ //전달이 2월달이면 : 28일 또는 29일
+                    if(date.getFullYear()%4 == 0){
+                        lastMonth = 29;
+                    }else{
+                        lastMonth = 28;
+                    }
+                }else if((month) <= 7){ //전달이 7월이하면
+                    if((month)%2 == 0){ //짝수달이 30일
+                        lastMonth = 30;
+                    }else{
+                        lastMonth = 31;
+                    }
+                }else{ //전달이 8월 이상이면
+                    if((month)%2 == 0){ //짝수달이 31일
+                        lastMonth = 31;
+                    }else{
+                        lastMonth = 30;
+                    }
+                }
+                if(day + a > lastMonth){
+                    _day = day + a - lastMonth;
+                    _month = month + 1;
+                }else{
+                    _day = day + a;
+                    _month = month;
+                }
+                if(_month.toString().length == 1){
+                    __month = "0" + _month.toString(); 
+                }else{
+                    __month = _month.toString();
+                }
+                if(_day.toString().length == 1){
+                    __day = "0" + _day.toString();
+                }else{
+                    __day = _day.toString();
+                }
+                return date.getFullYear().toString()+__month.toString()+__day.toString();
+            }
+        </script>
+    </head>
+    <body>
+        <center>
+            <input type="text" id="ATPT_OFCDC_SC_CODE" placeholder="시도교육청코드" value="J10"><br>
+            <input type="text" id="SD_SCHUL_CODE" placeholder="표준학교코드" value="7642049"><br>
+            <input type="text" id="AY" placeholder="년도" value="2021"><br>
+            <input type="text" id="SEM" placeholder="학기" value="1"><br>
+            <input type="text" id="DGHT_CRSE_SC_NM" value="주간" placeholder="주야과정명"><br>
+            <input type="text" id="GRADE" placeholder="학년"><br>
+            <input type="text" id="CLASS_NM" placeholder="반">
+            <input type="button" onclick="testButtonOnclick();" value="testButton">
+
+            <span id="guide" style="color:#999"></span>
+                <div id="div1">
+                <table id="table"></table>
+                <p id="timeLabel"></p>
+            </div>
+        </center>
+    </body>
+</html>
